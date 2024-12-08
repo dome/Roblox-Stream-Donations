@@ -71,7 +71,7 @@
     </style>
   </head>
   <body>
-    <audio id="donationSound" src="/dono.mp3" type="audio/mp3"></audio>
+    <audio id="donationSound" src="/tada.mp3" type="audio/mp3"></audio>
 
     <div class="content">
       <div id="donations" style="display: none">
@@ -114,7 +114,7 @@
             donationsDiv.innerHTML = `<br />
               <strong>${sanitizeHTML(
                 newDonation.donorName
-              )}</strong> donated <strong>${newDonation.amount}</strong> ROBUX!
+              )}</strong> บริจาค <strong>${newDonation.amount}</strong> บาท!
               <br />`;
             showDonation(
               sanitizeHTML(newDonation.donorName),
@@ -125,7 +125,7 @@
             donationsDiv.innerHTML = `<br />
           <strong>${sanitizeHTML(
             newDonation.donorName
-          )}</strong> donated <strong>${newDonation.amount}</strong> ROBUX!
+          )}</strong> บริจาค <strong>${newDonation.amount}</strong> บาท!
           <br />
           <i>"${sanitizeHTML(newDonation.donorMessage)}"</i>`;
             showDonation(
@@ -155,7 +155,7 @@
 
         // Create and configure the image element
         const img = document.createElement("img");
-        img.src = "/dinero-02.gif"; // Replace this with your the URL of your image
+        img.src = "/cute-bear.gif"; // Replace this with your the URL of your image
         img.alt = "Donation Image"; // Provide an alt text for the image (not necessary but advised)
         img.style = "z-index: 1; position: relative;"; // Don't change unless you know what you're doing
 
@@ -180,14 +180,21 @@
           setTimeout(() => {
             const donationAmount = Number(amount); // Convert amount to a number
             if (donationAmount < MIN_TTS_AMOUNT) {
-              console.log(`Donation below threshold (${donationAmount} ROBUX)`);
+              console.log(`Donation below threshold (${donationAmount} บาท)`);
             } else {
               console.log(
                 `Donation above threshold, playing TTS: ${donorName} donated ${donationAmount} ROBUX: ${donorMessage}`
               );
-              const ttsMessage = `${donorName} donated ${donationAmount} ROBUX: ${donorMessage}`;
+              const ttsMessage = `${donorName} บริจาค ${donationAmount} บาท: ${donorMessage}`;
               msg.text = ttsMessage;
-              window.speechSynthesis.speak(msg);
+              msg.lang = "th-TH";
+              // window.speechSynthesis.speak(msg);
+              var u = new SpeechSynthesisUtterance();
+              
+              u.text = ttsMessage
+              u.lang = "th-TH";
+              u.rate = 1.3;
+              speechSynthesis.speak(u);
             }
           }, 100);
         };
