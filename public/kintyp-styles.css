@@ -1,0 +1,88 @@
+
+.kintyp, .kintyp-left, .kintyp-right, .kintyp-top, .kintyp-bottom{
+    border: 0;
+    clip: rect(0 0 0 0);
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    width: 1px;
+}
+.kintyp-back-panel{
+    position: absolute; width: 100%; height: 100%; opacity: 0;
+}
+kintyp-type0-anime *, 
+kintyp-type1-anime *, 
+kintyp-type2-anime *, 
+kintyp-type3-anime *, 
+kintyp-type4-anime *, 
+kintyp-type5-anime *, 
+kintyp-type6-anime *, 
+kintyp-type7-anime *, 
+kintyp-type8-anime *, 
+kintyp-type9-anime *
+{
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu,
+    Cantarell, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+.fc_000000 { color: #000000}
+.fc_00ff88 { color: #00ff88}
+.fc_f8eb32 { color: #f8eb32}
+.fc_0088ff { color: #0088ff}
+.fc_ffffff { color: #ffffff}
+.fc_ff8800 { color: #ff8800}
+.fc_ff3300 { color: #ff3300}
+.fc_88ff00 { color: #88ff00}
+.fc_ff0088 { color: #ff0088}
+.fc_0066aa { color: #0066aa}
+.fw_normal { font-weight: normal}
+.fw_bold { font-weight: bold}
+  
+.kintyp_flex_centered_c{
+    display: flex; align-items: center;  justify-content: center;
+    flex-direction: column;
+}
+.kintyp_flex_left_c{
+    display: flex; align-items: flex-start;  justify-content: flex-start;
+    flex-direction: column;
+}
+.kintyp_flex_left_r{
+    display: flex; align-items: center;  justify-content: flex-start;
+    flex-direction: row;
+}
+.kintyp-obj-top-right{
+    position: absolute; 
+    right:0;
+    top: 0%;          
+    margin:auto;
+}
+.kintyp-obj-top-left{
+    overflow: hidden; 
+    position: absolute; 
+    left: 0%;
+    top: 0%;          
+    margin:auto;
+}
+.kintyp-obj-top-center{
+    overflow: hidden; 
+    position: absolute; 
+    left:0; right:0;
+    top: 0%;          
+    margin:auto;
+}
+.kintyp-obj-bottom{
+    overflow: hidden; 
+    position: absolute;
+    left:0; right:0;
+    bottom: 0%;
+    margin:auto;            
+}
+.kintyp-obj-center{
+    overflow: hidden; 
+    position: absolute;
+    left:0; right:0;
+    top:0; bottom:0;
+    margin:auto;            
+}
