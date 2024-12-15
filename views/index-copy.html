@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link href="kintyp-styles.css?rid=21" rel="stylesheet" />
+    <title>Donation Alert</title>
+    <style>
+      body {
+        font-family: "Roboto", sans-serif;
+        color: white;
+      }
+
+      .content {
+        text-align: center;
+      }
+
+      .donations {
+        size: 40px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+      }
+
+      @keyframes fadeIn {
+        0% {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        100% {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes fadeOut {
+        0% {
+          opacity: 1;
+          transform: translateY(0);
+        }
+        100% {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+      }
+
+      #donations.fadeIn {
+        display: inline-block;
+
+        background-color: rgba(0, 0, 0);
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        border-radius: 10px;
+        padding: 20px;
+
+        size: fit-content;
+        animation: fadeIn 1s forwards;
+      }
+
+      #donations.fadeOut {
+        display: inline-block;
+
+        background-color: rgba(0, 0, 0);
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        border-radius: 10px;
+        padding: 20px;
+
+        size: fit-content;
+        animation: fadeOut 1s forwards;
+      }
+    </style>
+  </head>
+  <body>
+    <audio id="donationSound" src="/tada.mp3" type="audio/mp3"></audio>
+
+    <div class="content">
+      <div id="donations" style="display: none">
+        <!-- content here -->
+      </div>
+    </div>
+
+    <script>
+      const MIN_TTS_AMOUNT = 100; // Set this to the minimum donation amount you want for TTS to appear.
+
+      let lastDonationTimestamp = 0;
+      let isDisplayingDonation = false;
+
+      var msg = new SpeechSynthesisUtterance();
+
+      speechSynthesis.onvoiceschanged = () => {
+        const voices = speechSynthesis.getVoices();
+        msg.voice = voices[5];
+      };
+
+      async function fetchDonations() {
+        if (isDisplayingDonation) return;
+
+        const response = await fetch("/api/donations");
+        const donations = await response.json();
+
+        const newDonation = donations.find(
+          (donation) =>
+            new Date(donation.timestamp) > new Date(lastDonationTimestamp)
+        );
+
+        if (newDonation) {
+          isDisplayingDonation = true;
+          lastDonationTimestamp = newDonation.timestamp;
+
+          const donationsDiv = document.getElementById("donations");
+
+          const donationAmount = Number(newDonation.amount); // Convert
+          if (donationAmount < MIN_TTS_AMOUNT) {
+            donationsDiv.innerHTML = `<br />
+                    <strong>${sanitizeHTML(
+                      newDonation.donorName
+                    )}</strong> บริจาค <strong>${
+              newDonation.amount
+            }</strong> บาท!
+                    <br />`;
+            showDonation(
+              sanitizeHTML(newDonation.donorName),
+              newDonation.amount,
+              sanitizeHTML(newDonation.donorMessage)
+            );
+          } else {
+            donationsDiv.innerHTML = `<br />
+                <strong>${sanitizeHTML(
+                  newDonation.donorName
+                )}</strong> บริจาค <strong>${newDonation.amount}</strong> บาท!
+                <br />
+                <i>"${sanitizeHTML(newDonation.donorMessage)}"</i>`;
+            showDonation(
+              sanitizeHTML(newDonation.donorName),
+              newDonation.amount,
+              sanitizeHTML(newDonation.donorMessage)
+            );
+          }
+
+          setTimeout(() => {
+            hideDonation();
+          }, 10000); // Display each donation for 10 seconds
+        }
+      }
+
+      function sanitizeHTML(str) {
+        const temp = document.createElement("div");
+        temp.textContent = str;
+        return temp.innerHTML;
+      }
+
+      function showDonation(donorName, amount, donorMessage) {
+        const donationsDiv = document.getElementById("donations");
+        donationsDiv.classList.remove("fadeOut");
+        donationsDiv.classList.add("fadeIn");
+        donationsDiv.style.display = "block"; // Make sure the div is visible
+
+        // Create and configure the image element
+        const img = document.createElement("img");
+        img.src = "/cute-bear.gif"; // Replace this with your the URL of your image
+        img.alt = "Donation Image"; // Provide an alt text for the image (not necessary but advised)
+        img.style = "z-index: 1; position: relative;"; // Don't change unless you know what you're doing
+
+        // Remove any existing images before adding a new one
+        const existingImg = donationsDiv.querySelector("img");
+        if (existingImg) {
+          donationsDiv.removeChild(existingImg);
+        }
+
+        // Prepend the new image to the donationsDiv
+        donationsDiv.prepend(img);
+
+        // Adjust the volume of the donation sound
+        const donationSound = document.getElementById("donationSound");
+        donationSound.volume = 0.3; // Adjust volume to 30%
+
+        // Play the donation sound
+        donationSound.play();
+
+        // When the donation sound ends, play the TTS message after a 1-second delay
+        donationSound.onended = () => {
+          setTimeout(() => {
+            const donationAmount = Number(amount); // Convert amount to a number
+            if (donationAmount < MIN_TTS_AMOUNT) {
+              console.log(`Donation below threshold (${donationAmount} บาท)`);
+            } else {
+              console.log(
+                `Donation above threshold, playing TTS: ${donorName} donated ${donationAmount} ROBUX: ${donorMessage}`
+              );
+              const ttsMessage = `${donorName} บริจาค ${donationAmount} บาท: ${donorMessage}`;
+              fetchAndPlayAudio(ttsMessage);
+              // msg.text = ttsMessage;
+              // msg.lang = "th-TH";
+              // window.speechSynthesis.speak(msg);
+              /*
+                    var u = new SpeechSynthesisUtterance();
+                    u.text = ttsMessage
+                    u.lang = "th-TH";
+                    u.rate = 1.1;
+                    speechSynthesis.speak(u);
+      */
+            }
+          }, 100);
+        };
+      }
+
+      function hideDonation() {
+        const donationsDiv = document.getElementById("donations");
+        donationsDiv.classList.remove("fadeIn");
+        donationsDiv.classList.add("fadeOut");
+        setTimeout(() => {
+          donationsDiv.style.display = "none"; // Hide the div after the animation
+          isDisplayingDonation = false; // Reset the flag
+        }, 1000); // This duration should match the length of the fadeOut animation
+      }
+      async function fetchAndPlayAudio(ttsMessage) {
+        const data = {
+          voice: "google_speech_file",
+          textToSpeech: ttsMessage,
+          language: "th",
+          speed: 1.2,
+        };
+        const options = {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        };
+        try {
+          // ส่ง request ไปยัง API server
+          const response = await fetch("http://167.235.64.110:3000/ ", options); // เปลี่ยน /your-api-endpoint เป็น URL ของ API ของคุณ
+
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+
+          // สร้าง URL object สำหรับดาวน์โหลดไฟล์
+          const blob = await response.blob();
+          const url = URL.createObjectURL(blob);
+
+          // สร้าง audio element และเล่นไฟล์
+          const audio = new Audio(url);
+          audio.play();
+        } catch (error) {
+          console.error("Error fetching or playing audio:", error);
+        }
+      }
+
+      // Example: Start fetching donations
+      setInterval(fetchDonations, 1000); // Check for new donations every 1 second
+    </script>
+    <script src="KintypTypeBase.js"></script>
+    <script src="KintypType5Anime.js"></script>
+  </body>
+</html>
