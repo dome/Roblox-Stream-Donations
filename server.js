@@ -36,4 +36,8 @@ app.get("/", (req, res) => {
   res.sendFile(__dirname + "/views/index.html");
 });
 
+app.get("/:page", (req, res) => {
+  res.sendFile(__dirname + `/views/${req.params.page}.html`);
+});
+
 app.listen(3000, () => console.log("Server running on port 3000"));
