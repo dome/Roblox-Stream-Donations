@@ -1,175 +1,176 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
-  <link href="kintyp-styles.css?rid=21" rel="stylesheet" />
-  <title>Donation Alert</title>
-  <style>
-    body {
-      font-family: "Roboto", sans-serif;
-      color: white;
-    }
-
-    .content {
-      text-align: center;
-    }
-
-    .donations {
-      size: 40px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-    }
-
-    @keyframes fadeIn {
-      0% {
-        opacity: 0;
-        transform: translateY(20px);
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link href="kintyp-styles.css?rid=21" rel="stylesheet" />
+    <title>Donation Alert</title>
+    <style>
+      body {
+        font-family: "Roboto", sans-serif;
+        color: white;
       }
 
-      100% {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    @keyframes fadeOut {
-      0% {
-        opacity: 1;
-        transform: translateY(0);
+      .content {
+        text-align: center;
       }
 
-      100% {
-        opacity: 0;
-        transform: translateY(20px);
+      .donations {
+        size: 40px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
       }
-    }
 
-    #donations.fadeIn {
-      display: inline-block;
-
-      background-color: rgba(0, 0, 0);
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-      border-radius: 10px;
-      padding: 20px;
-
-      size: fit-content;
-      animation: fadeIn 1s forwards;
-    }
-
-    #donations.fadeOut {
-      display: inline-block;
-
-      background-color: rgba(0, 0, 0);
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-      border-radius: 10px;
-      padding: 20px;
-
-      size: fit-content;
-      animation: fadeOut 1s forwards;
-    }
-  </style>
-</head>
-
-<body style="background-color: #000000; margin: 0px; overflow: hidden">
-  
-
-  <div class="content">
-    <div id="donations" style="display: none">
-      <!-- content here -->
-    </div>
-  </div>
-
-  <section id="incoming-thanks"></section>
-  <audio id="donationSound" src="/tada.mp3" type="audio/mp3"></audio>
-
-  <script src="KintypTypeBase.js"></script>
-  <script src="KintypType5Anime.js"></script>
-  <script src="KintypController.js"></script>
-
-  <script>
-
-    
-    const MIN_TTS_AMOUNT = 100; // Set this to the minimum donation amount you want for TTS to appear.
-
-    let lastDonationTimestamp = 0;
-
-    var msg = new SpeechSynthesisUtterance();
-
-    speechSynthesis.onvoiceschanged = () => {
-      const voices = speechSynthesis.getVoices();
-      msg.voice = voices[5];
-    };
-
-    const $KintypController = new KintypController('incoming-thanks');
-
-    async function fetchDonations() {
-
-      const response = await fetch("/api/donations");
-      const donations = await response.json();
-
-      const newDonation = donations.find(
-        (donation) =>
-          new Date(donation.timestamp) > new Date(lastDonationTimestamp)
-      );
-
-      if (newDonation) {
-
-        lastDonationTimestamp = newDonation.timestamp;
-
-        $KintypController.addQueue(
-          newDonation.donorName,
-          newDonation.amount,
-          newDonation.donorMessage
-        );
-
-        const donationSound = document.getElementById("donationSound");
-        donationSound.volume = 0.3;
-        donationSound.play();
-
-        console.log(newDonation);
-
-      }
-    }
-
-    async function fetchAndPlayAudio(ttsMessage) {
-      const data = {
-        voice: "google_speech_file",
-        textToSpeech: ttsMessage,
-        language: "th",
-        speed: 1.2,
-      };
-      const options = {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      };
-      try {
-        // ส่ง request ไปยัง API server
-        const response = await fetch("http://167.235.64.110:3000/ ", options); // เปลี่ยน /your-api-endpoint เป็น URL ของ API ของคุณ
-
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
+      @keyframes fadeIn {
+        0% {
+          opacity: 0;
+          transform: translateY(20px);
         }
 
-        // สร้าง URL object สำหรับดาวน์โหลดไฟล์
-        const blob = await response.blob();
-        const url = URL.createObjectURL(blob);
-
-        // สร้าง audio element และเล่นไฟล์
-        const audio = new Audio(url);
-        audio.play();
-      } catch (error) {
-        console.error("Error fetching or playing audio:", error);
+        100% {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
-    }
 
-    // Example: Start fetching donations
-    setInterval(fetchDonations, 1000); // Check for new donations every 1 second
-  </script>
-</body>
+      @keyframes fadeOut {
+        0% {
+          opacity: 1;
+          transform: translateY(0);
+        }
 
+        100% {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+      }
+
+      #donations.fadeIn {
+        display: inline-block;
+
+        background-color: rgba(0, 0, 0);
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        border-radius: 10px;
+        padding: 20px;
+
+        size: fit-content;
+        animation: fadeIn 1s forwards;
+      }
+
+      #donations.fadeOut {
+        display: inline-block;
+
+        background-color: rgba(0, 0, 0);
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        border-radius: 10px;
+        padding: 20px;
+
+        size: fit-content;
+        animation: fadeOut 1s forwards;
+      }
+    </style>
+  </head>
+
+  <body style="background-color: #000000; margin: 0px; overflow: hidden">
+    <audio id="donationSound" src="/tada.mp3" type="audio/mp3"></audio>
+
+    <div class="content">
+      <div id="donations" style="display: none">
+        <!-- content here -->
+      </div>
+    </div>
+
+    <section id="incoming-thanks"></section>
+    <audio id="donationSound" src="/tada.mp3" type="audio/mp3"></audio>
+
+    <script src="KintypTypeBase.js"></script>
+    <script src="KintypType5Anime.js"></script>
+    <script src="KintypController.js"></script>
+
+    <script>
+      const MIN_TTS_AMOUNT = 100; // Set this to the minimum donation amount you want for TTS to appear.
+
+      let lastDonationTimestamp = 0;
+
+      var msg = new SpeechSynthesisUtterance();
+
+      speechSynthesis.onvoiceschanged = () => {
+        const voices = speechSynthesis.getVoices();
+        msg.voice = voices[5];
+      };
+
+      const $KintypController = new KintypController("incoming-thanks");
+
+      async function fetchDonations() {
+        const response = await fetch("/api/donations");
+        const donations = await response.json();
+
+        const newDonation = donations.find(
+          (donation) =>
+            new Date(donation.timestamp) > new Date(lastDonationTimestamp)
+        );
+
+        if (newDonation) {
+          lastDonationTimestamp = newDonation.timestamp;
+
+          $KintypController.addQueue(
+            newDonation.donorName,
+            newDonation.amount,
+            newDonation.donorMessage
+          );
+          const ttsMessage = `${newDonation.donorName} บริจาค ${newDonation.amount} บาท: ${newDonation.donorMessage}`;
+          //          fetchAndPlayAudio(ttsMessage)
+          const donationSound = document.getElementById("donationSound");
+          donationSound.volume = 0.3;
+          donationSound.play();
+          donationSound.onended = () => {
+            const donationAmount = Number(newDonation.amount); // Convert amount to a number
+            if (donationAmount > MIN_TTS_AMOUNT) {
+              fetchAndPlayAudio(ttsMessage);
+            }
+          };
+
+          console.log(newDonation);
+        }
+      }
+
+      async function fetchAndPlayAudio(ttsMessage) {
+        const data = {
+          voice: "google_speech_file",
+          textToSpeech: ttsMessage,
+          language: "th",
+          speed: 1.2,
+        };
+        const options = {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        };
+        try {
+          const response = await fetch("https://ts.tk9.us ", options);
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+
+          // สร้าง URL object สำหรับดาวน์โหลดไฟล์
+          const blob = await response.blob();
+          const url = URL.createObjectURL(blob);
+
+          // สร้าง audio element และเล่นไฟล์
+          const audio = new Audio(url);
+          audio.play();
+        } catch (error) {
+          console.error("Error fetching or playing audio:", error);
+        }
+      }
+
+      // Example: Start fetching donations
+      setInterval(fetchDonations, 1000); // Check for new donations every 1 second
+    </script>
+  </body>
 </html>
